@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: >
+  Sample architecture for polling events from an endpoint and then passing them to an API.
+
+Resources:
+  GitHubConsumer:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: main
+      Runtime: provided.al2
+      Timeout: 5
+      MemorySize: 1800
+      AutoPublishAlias: live
+      Environment:
+        Variables:
+          EVENTS_ENDPOINT: !Sub https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/prod/events
+      Events:
+        Cron:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(1 minute)'
+            Enabled: true
+            Name: Events
+
+  EventsPublisher:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: main
+      Runtime: provided.al2
+      Timeout: 5
+      MemorySize: 1800
+      AutoPublishAlias: live
+      Policies:
+        - EventBridgePutEventsPolicy:
+            EventBusName: !Sub ${EventBus.Name}
+      Environment:
+        Variables:
+          EVENTBUS_NAME: !Sub ${EventBus.Name}
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: POST
+            Path: /events
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 200
+      FailOnWarnings: true
+
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: GitHubEvents
+
+Outputs:
+  HttpApiUrl:
+    Description: API endpoint
+    Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/prod/

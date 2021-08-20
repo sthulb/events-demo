@@ -1,0 +1,9 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "events-demo"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-1b4si16f51y3x"
+s3_prefix = "events-demo"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"

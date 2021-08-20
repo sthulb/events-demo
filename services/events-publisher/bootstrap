@@ -1,0 +1,21 @@
+#!/bin/bash
+
+SANDBOX_ARGS=(
+  "--rapid-server-url=$AWS_LAMBDA_RUNTIME_API"
+)
+
+if [ -z "$AWS_LAMBDA_EXEC_WRAPPER" ]; then
+  exec -- "$LAMBDA_TASK_ROOT/$_HANDLER" "${SANDBOX_ARGS[@]}"
+else
+  wrapper="$AWS_LAMBDA_EXEC_WRAPPER"
+  if [ ! -f "$wrapper" ]; then
+    echo "$wrapper: does not exist"
+    exit 127
+  fi
+  if [ ! -x "$wrapper" ]; then
+    echo "$wrapper: is not executable"
+    exit 126
+  fi
+
+  exec -- $wrapper "$LAMBDA_TASK_ROOT/$_HANDLER" "${SANDBOX_ARGS[@]}"
+fi
