@@ -1,5 +1,5 @@
-**/vendor/*
-**/node_modules/*
-**/.aws-sam/*
+node_modules/*
+services/vendor/*
+services/.aws-sam/*
 
 .DS_Store
