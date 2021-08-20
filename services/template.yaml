@@ -26,6 +26,24 @@ Resources:
             Enabled: true
             Name: Events
 
+  Issues:
+    Type: AWS::Serverless::Function
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Handler: main
+      Runtime: provided.al2
+      Timeout: 5
+      MemorySize: 1800
+      AutoPublishAlias: live
+      Events:
+        Rule:
+          Type: EventBridgeRule
+          Properties:
+            EventBusName: !Sub ${EventBus.Name}
+            Pattern:
+              detail-type: IssuesEvent
+
   EventsPublisher:
     Type: AWS::Serverless::Function
     Metadata:
