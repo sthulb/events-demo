@@ -42,7 +42,8 @@ Resources:
           Properties:
             EventBusName: !Sub ${EventBus.Name}
             Pattern:
-              detail-type: IssuesEvent
+              detail-type:
+                - IssuesEvent
 
   EventsPublisher:
     Type: AWS::Serverless::Function
